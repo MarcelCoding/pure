@@ -1,7 +1,18 @@
 set --global FAILURE 1
+set --universal __pure_git_prompt_cache "git"
+
+function $__pure_git_prompt_cache --on-variable $__pure_git_prompt_cache
+    commandline --function repaint
+end
 
 function _pure_prompt_first_line \
     --description 'Print contextual information before prompt.'
+
+    command kill $_hydro_last_pid 2>/dev/null
+    fish --private --command "
+        set --universal __pure_git_prompt_cache (_pure_prompt_git)
+    " &
+    set --global _hydro_last_pid $last_pid
 
     set --local prompt_ssh (_pure_prompt_ssh)
     set --local prompt_container (_pure_prompt_container)
@@ -22,7 +33,7 @@ function _pure_prompt_first_line \
     if set --query pure_begin_prompt_with_current_directory; and test "$pure_begin_prompt_with_current_directory" = true
         set prompt_components \
             $current_folder \
-            $prompt_git \
+            $__pure_git_prompt_cache \
             $prompt_ssh \
             $prompt_container \
             $prompt_k8s \
@@ -33,7 +44,7 @@ function _pure_prompt_first_line \
             $prompt_container \
             $prompt_k8s \
             $current_folder \
-            $prompt_git \
+            $__pure_git_prompt_cache \
             $prompt_command_duration
     end
 
